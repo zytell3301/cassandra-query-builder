@@ -1,4 +1,4 @@
-module cassandra-query-builder
+module github.com/zytell3301/cassandra-query-builder
 
 go 1.16
 
