@@ -3,7 +3,6 @@ package Cassandra
 import (
 	"fmt"
 	"github.com/gocql/gocql"
-	"github.com/spf13/viper"
 	"snap/Database/Uuid"
 	"strings"
 )
@@ -28,7 +27,6 @@ type TableDependencies []TableDependency
 type TableDependency func(map[string]interface{}, *gocql.Batch) bool
 
 var connections = make(map[string]Connection)
-var Configs *viper.Viper
 
 var ConnectionManager = struct {
 	GetSession func(name string) *gocql.Session
