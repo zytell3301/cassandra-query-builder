@@ -1,4 +1,4 @@
-package Cassandra
+package cassandraQB
 
 import (
 	"fmt"
