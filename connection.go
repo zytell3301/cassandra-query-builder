@@ -25,21 +25,6 @@ type TableMetaData struct {
 type TableDependencies []TableDependency
 type TableDependency func(map[string]interface{}, *gocql.Batch) bool
 
-var connections = make(map[string]Connection)
-
-var ConnectionManager = struct {
-	GetSession func(name string) *gocql.Session
-	AddSession func(keyspace string, connection Connection)
-}{
-	GetSession: func(name string) *gocql.Session {
-		return connections[name].Session
-	},
-	AddSession: func(keyspace string, connection Connection) {
-		fmt.Println("Connection " + keyspace + " just got set")
-		connections[keyspace] = connection
-	},
-}
-
 func FilterData(data map[string]interface{}, metaData TableMetaData) map[string]interface{} {
 	values := make(map[string]interface{})
 	for column, _ := range metaData.Columns {
