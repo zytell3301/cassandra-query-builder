@@ -1,4 +1,4 @@
-package Cassandra
+package cassandra_query_builder
 
 import (
 	"fmt"
