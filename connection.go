@@ -3,7 +3,8 @@ package Cassandra
 import (
 	"fmt"
 	"github.com/gocql/gocql"
-	"snap/Database/Uuid"
+	"github.com/google/uuid"
+	"github.com/zytell3301/uuid-generator"
 	"strings"
 )
 
@@ -55,25 +56,28 @@ func BindArgs(data map[string]interface{}) ([]interface{}, []string) {
 	return Args, fields
 }
 
-func AddId(values *map[string]interface{}, idName interface{}) {
-	var id string
+func AddId(values *map[string]interface{}, idName interface{}, generator uuid_generator.Generator) (err error) {
+	var id *uuid.UUID
+
 	switch idName == nil {
 	case true:
-		id = GenerateUuidv4()
+		id, err = generator.GenerateV4()
+		switch err != nil {
+		case true:
+			return
+		}
 		break
 	default:
-		id = Uuid.GenerateV5(idName.(string))
+		id = generator.GenerateV5(idName.(string))
 	}
+
 	_, isset := (*values)["id"]
 	switch isset {
 	case false:
 		(*values)["id"] = id
 	}
-}
 
-func GenerateUuidv4() string {
-	id, _ := gocql.RandomUUID()
-	return id.String()
+	return
 }
 
 func (metaData *TableMetaData) NewRecord(values map[string]interface{}, batch *gocql.Batch) bool {
@@ -107,7 +111,7 @@ func (metaData *TableMetaData) GetSelectStatement(conditions map[string]interfac
 func (metaData *TableMetaData) GetRecord(conditions map[string]interface{}, selectedFields []string) (data map[string]interface{}) {
 	data = make(map[string]interface{})
 
-	statement := metaData.GetSelectStatement(conditions,selectedFields)
+	statement := metaData.GetSelectStatement(conditions, selectedFields)
 	switch statement == nil {
 	case true:
 		return
