@@ -13,7 +13,7 @@ type Connection struct {
 	Session *gocql.Session
 }
 
-type TableMetaData struct {
+type TableMetadata struct {
 	Table      string
 	Columns    map[string]struct{}
 	Pk         map[string]struct{}
@@ -26,7 +26,7 @@ type TableMetaData struct {
 type TableDependencies []TableDependency
 type TableDependency func(map[string]interface{}, *gocql.Batch) bool
 
-func FilterData(data map[string]interface{}, metaData TableMetaData) map[string]interface{} {
+func FilterData(data map[string]interface{}, metaData TableMetadata) map[string]interface{} {
 	values := make(map[string]interface{})
 	for column, _ := range metaData.Columns {
 		value, isset := data[column]
@@ -80,7 +80,7 @@ func AddId(values *map[string]interface{}, idName interface{}, generator uuid_ge
 	return
 }
 
-func (metaData *TableMetaData) NewRecord(values map[string]interface{}, batch *gocql.Batch) bool {
+func (metaData *TableMetadata) NewRecord(values map[string]interface{}, batch *gocql.Batch) bool {
 	switch CheckData(&values, *metaData) {
 	case false:
 		return false
@@ -95,7 +95,7 @@ func (metaData *TableMetaData) NewRecord(values map[string]interface{}, batch *g
 	return true
 }
 
-func (metaData *TableMetaData) GetSelectStatement(conditions map[string]interface{}, selectedFields []string) (statement *gocql.Query) {
+func (metaData *TableMetadata) GetSelectStatement(conditions map[string]interface{}, selectedFields []string) (statement *gocql.Query) {
 	switch CheckData(&conditions, *metaData) {
 	case false:
 		return
@@ -108,7 +108,7 @@ func (metaData *TableMetaData) GetSelectStatement(conditions map[string]interfac
 	return
 }
 
-func (metaData *TableMetaData) GetRecord(conditions map[string]interface{}, selectedFields []string) (data map[string]interface{}) {
+func (metaData *TableMetadata) GetRecord(conditions map[string]interface{}, selectedFields []string) (data map[string]interface{}) {
 	data = make(map[string]interface{})
 
 	statement := metaData.GetSelectStatement(conditions, selectedFields)
@@ -122,7 +122,7 @@ func (metaData *TableMetaData) GetRecord(conditions map[string]interface{}, sele
 	return
 }
 
-func (metaData *TableMetaData) UpdateRecord(conditions map[string]interface{}, values map[string]interface{}, batch *gocql.Batch) bool {
+func (metaData *TableMetadata) UpdateRecord(conditions map[string]interface{}, values map[string]interface{}, batch *gocql.Batch) bool {
 	switch CheckData(&conditions, *metaData) {
 	case false:
 		return false
@@ -165,7 +165,7 @@ func GenerateWhereConditions(fields []string) string {
 	return strings.Join(fields, " AND ")
 }
 
-func CheckData(values *map[string]interface{}, metaData TableMetaData) bool {
+func CheckData(values *map[string]interface{}, metaData TableMetadata) bool {
 	data := FilterData(*values, metaData)
 	switch len(data) == 0 {
 	case true:
@@ -209,7 +209,7 @@ func addDependency(channel chan bool, dependency TableDependency, values map[str
 	channel <- dependency(values, statement)
 }
 
-func CheckPK(metaData TableMetaData, data *map[string]interface{}) bool {
+func CheckPK(metaData TableMetadata, data *map[string]interface{}) bool {
 	for field := range metaData.Pk {
 		switch _, isSet := (*data)[field]; isSet {
 		case false:
