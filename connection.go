@@ -19,7 +19,6 @@ type TableMetaData struct {
 	Ck         map[string]struct{}
 	Keyspace   string
 	DependsOn  TableDependencies
-	Maps       map[string]interface{}
 	Connection *gocql.Session
 }
 
