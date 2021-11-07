@@ -56,7 +56,7 @@ func BindArgs(data map[string]interface{}) ([]interface{}, []string) {
 	return Args, fields
 }
 
-func AddId(values *map[string]interface{}, idName interface{}, generator uuid_generator.Generator) (err error) {
+func AddId(values *map[string]interface{}, idName interface{}, generator *uuid_generator.Generator) (err error) {
 	var id *uuid.UUID
 
 	switch idName == nil {
