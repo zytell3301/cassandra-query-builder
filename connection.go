@@ -97,8 +97,8 @@ func (metaData *TableMetadata) NewRecord(values map[string]interface{}, batch *g
 	return nil
 }
 
-func (metaData *TableMetadata) GetSelectStatement(conditions map[string]interface{}, selectedFields []string) (statement *gocql.Query) {
-	err := CheckData(&conditions, *metaData)
+func (metaData *TableMetadata) GetSelectStatement(conditions map[string]interface{}, selectedFields []string) (statement *gocql.Query, err error) {
+	err = CheckData(&conditions, *metaData)
 	switch err != nil {
 	case true:
 		return
@@ -111,11 +111,11 @@ func (metaData *TableMetadata) GetSelectStatement(conditions map[string]interfac
 	return
 }
 
-func (metaData *TableMetadata) GetRecord(conditions map[string]interface{}, selectedFields []string) (data map[string]interface{}) {
+func (metaData *TableMetadata) GetRecord(conditions map[string]interface{}, selectedFields []string) (data map[string]interface{}, err error) {
 	data = make(map[string]interface{})
 
-	statement := metaData.GetSelectStatement(conditions, selectedFields)
-	switch statement == nil {
+	statement, err := metaData.GetSelectStatement(conditions, selectedFields)
+	switch err != nil {
 	case true:
 		return
 	}
@@ -125,11 +125,11 @@ func (metaData *TableMetadata) GetRecord(conditions map[string]interface{}, sele
 	return
 }
 
-func (metaData *TableMetadata) UpdateRecord(conditions map[string]interface{}, values map[string]interface{}, batch *gocql.Batch) bool {
+func (metaData *TableMetadata) UpdateRecord(conditions map[string]interface{}, values map[string]interface{}, batch *gocql.Batch) error {
 	err := CheckData(&conditions, *metaData)
 	switch err != nil {
 	case true:
-		return false
+		return err
 	}
 
 	Args, fields := BindArgs(values)
@@ -140,7 +140,7 @@ func (metaData *TableMetadata) UpdateRecord(conditions map[string]interface{}, v
 		Idempotent: false,
 	})
 
-	return true
+	return nil
 }
 
 func MergeArgs(args ...[]interface{}) []interface{} {
