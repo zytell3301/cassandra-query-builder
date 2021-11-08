@@ -1,7 +1,6 @@
 package cassandraQB
 
 import (
-	"errors"
 	"fmt"
 	"github.com/gocql/gocql"
 	"github.com/google/uuid"
@@ -173,11 +172,11 @@ func CheckData(values *map[string]interface{}, metaData TableMetadata) error {
 	data := FilterData(*values, metaData)
 	switch len(data) == 0 {
 	case true:
-		return errors.New("no valid fields supplied")
+		return ErrorEmptyValidData
 	}
 	switch CheckPK(metaData, &data) {
 	case false:
-		return errors.New("primary key field is missing")
+		return ErrorPrimaryKeyMissing
 	}
 
 	values = &data
