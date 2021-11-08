@@ -1,6 +1,7 @@
 package cassandraQB
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gocql/gocql"
 	"github.com/google/uuid"
@@ -80,10 +81,11 @@ func AddId(values *map[string]interface{}, idName interface{}, generator *uuid_g
 	return
 }
 
-func (metaData *TableMetadata) NewRecord(values map[string]interface{}, batch *gocql.Batch) bool {
-	switch CheckData(&values, *metaData) {
-	case false:
-		return false
+func (metaData *TableMetadata) NewRecord(values map[string]interface{}, batch *gocql.Batch) error {
+	err := CheckData(&values, *metaData)
+	switch err != nil {
+	case true:
+		return err
 	}
 
 	Args, fields := BindArgs(values)
@@ -92,12 +94,13 @@ func (metaData *TableMetadata) NewRecord(values map[string]interface{}, batch *g
 		Args:       Args,
 		Idempotent: false,
 	})
-	return true
+	return nil
 }
 
 func (metaData *TableMetadata) GetSelectStatement(conditions map[string]interface{}, selectedFields []string) (statement *gocql.Query) {
-	switch CheckData(&conditions, *metaData) {
-	case false:
+	err := CheckData(&conditions, *metaData)
+	switch err != nil {
+	case true:
 		return
 	}
 
@@ -123,8 +126,9 @@ func (metaData *TableMetadata) GetRecord(conditions map[string]interface{}, sele
 }
 
 func (metaData *TableMetadata) UpdateRecord(conditions map[string]interface{}, values map[string]interface{}, batch *gocql.Batch) bool {
-	switch CheckData(&conditions, *metaData) {
-	case false:
+	err := CheckData(&conditions, *metaData)
+	switch err != nil {
+	case true:
 		return false
 	}
 
@@ -165,19 +169,19 @@ func GenerateWhereConditions(fields []string) string {
 	return strings.Join(fields, " AND ")
 }
 
-func CheckData(values *map[string]interface{}, metaData TableMetadata) bool {
+func CheckData(values *map[string]interface{}, metaData TableMetadata) error {
 	data := FilterData(*values, metaData)
 	switch len(data) == 0 {
 	case true:
-		return false
+		return errors.New("no valid fields supplied")
 	}
 	switch CheckPK(metaData, &data) {
 	case false:
-		return false
+		return errors.New("primary key field is missing")
 	}
 
 	values = &data
-	return true
+	return nil
 }
 
 func AddDependencies(dependencies TableDependencies, values map[string]interface{}, statement *gocql.Batch) bool {
