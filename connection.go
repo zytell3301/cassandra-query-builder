@@ -142,6 +142,22 @@ func (metaData *TableMetadata) UpdateRecord(conditions map[string]interface{}, v
 	return nil
 }
 
+func (metaData *TableMetadata) DeleteRecord(conditions map[string]interface{}, batch *gocql.Batch) error {
+	err := CheckData(&conditions, *metaData)
+	switch err != nil {
+	case true:
+		return err
+	}
+
+	args, fields := BindArgs(conditions)
+	batch.Entries = append(batch.Entries, gocql.BatchEntry{
+		Stmt: "DELETE FROM " + metaData.Table + " WHERE " + GenerateWhereConditions(fields),
+		Args: args,
+	})
+
+	return nil
+}
+
 func MergeArgs(args ...[]interface{}) []interface{} {
 	result := make([]interface{}, 0)
 	for _, arg := range args {
