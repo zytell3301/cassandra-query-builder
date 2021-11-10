@@ -184,9 +184,7 @@ func generateEmptyEquality(fields []string) []string {
 }
 
 func GenerateWhereConditions(fields []string) string {
-	for index, value := range fields {
-		fields[index] = value + " = ?"
-	}
+	fields = generateEmptyEquality(fields)
 
 	return strings.Join(fields, " AND ")
 }
