@@ -176,6 +176,13 @@ func bindValues(statement *gocql.Query, args []interface{}) *gocql.Query {
 	return statement
 }
 
+func generateEmptyEquality(fields []string) []string {
+	for index, value := range fields {
+		fields[index] = value + " = ?"
+	}
+	return fields
+}
+
 func GenerateWhereConditions(fields []string) string {
 	for index, value := range fields {
 		fields[index] = value + " = ?"
