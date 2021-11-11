@@ -3,8 +3,6 @@ package cassandraQB
 import (
 	"fmt"
 	"github.com/gocql/gocql"
-	"github.com/google/uuid"
-	"github.com/zytell3301/uuid-generator"
 	"strings"
 )
 
@@ -54,30 +52,6 @@ func BindArgs(data map[string]interface{}) ([]interface{}, []string) {
 		fields = append(fields, field)
 	}
 	return Args, fields
-}
-
-func AddId(values *map[string]interface{}, idName interface{}, generator *uuid_generator.Generator) (err error) {
-	var id *uuid.UUID
-
-	switch idName == nil {
-	case true:
-		id, err = generator.GenerateV4()
-		switch err != nil {
-		case true:
-			return
-		}
-		break
-	default:
-		id = generator.GenerateV5(idName.(string))
-	}
-
-	_, isset := (*values)["id"]
-	switch isset {
-	case false:
-		(*values)["id"] = id
-	}
-
-	return
 }
 
 func (metaData *TableMetadata) NewRecord(values map[string]interface{}, batch *gocql.Batch) error {
