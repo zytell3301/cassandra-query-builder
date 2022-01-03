@@ -93,7 +93,7 @@ func (metaData *TableMetadata) GetRecord(conditions map[string]interface{}, sele
 		return
 	}
 
-	statement.MapScan(data)
+	err = statement.MapScan(data)
 
 	return
 }
@@ -108,7 +108,7 @@ func (metaData *TableMetadata) UpdateRecord(conditions map[string]interface{}, v
 	Args, fields := BindArgs(values)
 	whereArgs, whereFields := BindArgs(conditions)
 	batch.Entries = append(batch.Entries, gocql.BatchEntry{
-		Stmt:       "UPDATE " + metaData.Table + " SET " + strings.Join(generateEmptyEquality(fields),",") + " WHERE " + GenerateWhereConditions(whereFields),
+		Stmt:       "UPDATE " + metaData.Table + " SET " + strings.Join(generateEmptyEquality(fields), ",") + " WHERE " + GenerateWhereConditions(whereFields),
 		Args:       MergeArgs(Args, whereArgs),
 		Idempotent: false,
 	})
