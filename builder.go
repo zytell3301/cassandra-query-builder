@@ -84,6 +84,11 @@ func (metaData *TableMetadata) GetSelectStatement(conditions map[string]interfac
 	return
 }
 
+func (metaData *TableMetadata) FetchFromSelectStatement(statement *gocql.Query) (data map[string]interface{}, err error) {
+	err = statement.MapScan(data)
+	return
+}
+
 func (metaData *TableMetadata) GetRecord(conditions map[string]interface{}, selectedFields []string) (data map[string]interface{}, err error) {
 	data = make(map[string]interface{})
 
