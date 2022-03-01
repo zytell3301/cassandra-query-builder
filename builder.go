@@ -85,6 +85,7 @@ func (metaData *TableMetadata) GetSelectStatement(conditions map[string]interfac
 }
 
 func (metaData *TableMetadata) FetchFromSelectStatement(statement *gocql.Query) (data map[string]interface{}, err error) {
+	data = map[string]interface{}{}
 	err = statement.MapScan(data)
 	return
 }
